@@ -40,7 +40,7 @@ class Routo{
       fs.ensureFileSync(output)
       // write file after 
       // TODO: pass through transformers based on type first
-      fs.writeFileSync(output, m.toString())
+      fs.writeFileSync(output, m)
     } else {
       fs.ensureFileSync(output)
       fs.copyFileSync(p, output)
