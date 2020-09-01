@@ -2,8 +2,8 @@ var fs = require('fs-extra')
 var walk = require('klaw-sync')
 var path = require('path')
 var chokidar = require('chokidar')
-require = require("esm")(module/*, options*/)
 var onExit = require('signal-exit');
+require = require("esm")(module/*, options*/)
 
 class Routo{
   constructor(config){
