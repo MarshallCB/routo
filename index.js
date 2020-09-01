@@ -3,6 +3,7 @@ var walk = require('klaw-sync')
 var path = require('path')
 var chokidar = require('chokidar')
 require = require("esm")(module/*, options*/)
+var onExit = require('signal-exit');
 
 class Routo{
   constructor(config){
@@ -75,20 +76,24 @@ class Routo{
 
   watch(){
     this.build()
-    chokidar.watch(this.sources, { 
+    let watcher = chokidar.watch(this.sources, { 
       ignored: /(^|[\/\\])[\._]./,
       ignoreInitial: true,
       // awaitWriteFinish: {
       //   stabilityThreshold: 1000,
       //   pollInterval: 200
       // }
-    }).on('all', (e, p) => {
+    })
+    watcher.on('all', (e, p) => {
       if(e === 'unlink'){
         this.unlinkFile(p)
       } else {
         this.buildFile(p)
       }
-    })    
+    })
+    onExit(() => {
+      watcher.close().then(() => {})
+    })
   }
 }
 
