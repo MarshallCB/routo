@@ -32,17 +32,39 @@ class Routo{
     delete require.cache[absolute]
   
     let segs = base.split('.')
+    // Retrieve type from file: [file].[type].js
+    let type = segs[1]
+
     if(segs.length === 3 && segs[2] === 'js'){
-      let m = require(absolute)
-      // Retrieve type from file: [file].[type].js
-      let type = segs[1]
-      // Remove .js from output file name: [file].type
-      output = output.substr(0,output.length-3)
-      fs.ensureFileSync(output)
-      // write file after 
-      // TODO: pass through transformers based on type first
-      fs.writeFileSync(output, m)
-    } else {
+      let mod = require(absolute)
+      mod = mod && mod.__esModule ? mod.default : mod
+      Promise.resolve(mod).then(m => {
+        // TODO: recursively dive into object
+        if(typeof m === 'object'){
+          let keys = Object.keys(m)
+          keys.forEach(k => {
+            // Convert to [folder]/[key].[type]
+            let file_output = path.join(output.substr(0,output.length-4-type.length),`${k}.${type}`)
+            fs.ensureFileSync(file_output)
+            // write file after 
+            // TODO: pass through transformers based on type first
+            fs.writeFileSync(file_output, m[k])
+          })
+        }
+        else {
+          // Remove .js from output file name: [file].type
+          let file_output = output.substr(0,output.length-3)
+          fs.ensureFileSync(file_output)
+          // write file after 
+          // TODO: pass through transformers based on type first
+          fs.writeFileSync(file_output, m)
+
+        }
+      }).catch(e => {
+        console.error(e)
+      })
+    } else if(segs.length != 1){
+      // ignore if directory
       fs.ensureFileSync(output)
       fs.copyFileSync(p, output)
     }
