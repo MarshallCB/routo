@@ -44,16 +44,21 @@ class Routo{
           let keys = Object.keys(m)
           keys.forEach(k => {
             // Convert to [folder]/[key].[type]
-            let file_output = path.join(output.substr(0,output.length-4-type.length),`${k}.${type}`)
+            let file_output = type === 'html' ? 
+              path.join(output.substr(0,output.length-4-type.length), `${k}/index.html`) :
+              path.join(output.substr(0,output.length-4-type.length),`${k}.${type}`)
             fs.ensureFileSync(file_output)
             // write file after 
             // TODO: pass through transformers based on type first
+            // TODO: Improve filepath generation logic (could b simpler for sure)
             fs.writeFileSync(file_output, m[k])
           })
         }
         else {
           // Remove .js from output file name: [file].type
-          let file_output = output.substr(0,output.length-3)
+          let file_output =  type === 'html' && base != 'index.html.js' ? 
+            path.join(output.substr(0,output.length-4-type.length), '/index.html') :
+            output.substr(0,output.length-3)
           fs.ensureFileSync(file_output)
           // write file after 
           // TODO: pass through transformers based on type first
