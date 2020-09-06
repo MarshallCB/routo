@@ -6,7 +6,7 @@ var Walker = require('node-source-walk')
 var detectiveCjs = require('detective-cjs')
 var detectiveEs6 = require('detective-es6')
 var glob = require('glob')
-require = require("esm")(module/*, options*/)
+require = require("esm")(module)
 
 var walker = new Walker()
 
@@ -51,6 +51,7 @@ class Routo{
             if(!str.endsWith('.js') && !str.endsWith('.json')){
               return str + ".js"
             }
+            return str;
           })
         return localDependencies;
       } catch(e){
@@ -127,7 +128,6 @@ class Routo{
 
   devBuild(p){
     let { id } = this.transformPath(p)
-    console.log("Dev building ", p)
     this.buildFile(p)
     let dependencies = this.getFileDependencies(p).map(d => path.join(p,'../',d))
     if(dependencies.length > 0){
