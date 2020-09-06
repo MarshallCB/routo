@@ -1,9 +1,14 @@
 var fs = require('fs-extra')
-var walk = require('klaw-sync')
 var path = require('path')
 var chokidar = require('chokidar')
 var onExit = require('signal-exit');
+var Walker = require('node-source-walk')
+var detectiveCjs = require('detective-cjs')
+var detectiveEs6 = require('detective-es6')
+var glob = require('glob')
 require = require("esm")(module/*, options*/)
+
+var walker = new Walker()
 
 class Routo{
   constructor(config){
@@ -11,6 +16,12 @@ class Routo{
     this.sources = Array.isArray(src) ? src : [src];
     this.destination = config.destination
     this.cwd = config.cwd
+    this.ignored = /(^|[\/\\])[\._]./
+    this.sourcesGlob = `+(${
+      this.sources.join('|')
+    })/**/*`
+    this.dependents = {}
+    this.watcher = null
   }
 
   transformPath(p){
@@ -23,17 +34,42 @@ class Routo{
     let output = path.join(this.destination, id)
     let absolute = path.join(this.cwd, p)
     let base = path.basename(id)
-    return { id, output, absolute, base }
+    let segs = base.split('.')
+    return { id, output, absolute, base, segs }
+  }
+
+  getFileDependencies(p){
+    if(p.endsWith('.js')){
+      try{
+        let src = fs.readFileSync(p, { encoding: 'utf8'})
+        let ast = walker.parse(src)
+        let options = {}
+        let dependencies = detectiveEs6(ast, options).concat(detectiveCjs(ast, options))
+        let localDependencies = dependencies
+          .filter(str => str[0] === '.')
+          .map(str => {
+            if(!str.endsWith('.js') && !str.endsWith('.json')){
+              return str + ".js"
+            }
+          })
+        return localDependencies;
+      } catch(e){
+        console.log(e)
+      }
+    }
+    return []
   }
 
   buildFile(p){
-    let { id, output, absolute, base } = this.transformPath(p)
+    let { id, output, absolute, base, segs } = this.transformPath(p)
     // Purge cache to prevent stale builds
     delete require.cache[absolute]
-  
-    let segs = base.split('.')
     // Retrieve type from file: [file].[type].js
     let type = segs[1]
+
+    // ignore based on config and ignore directories / files without an extension
+    if(p.match(this.ignored) || segs.length == 1) return;
+
 
     if(segs.length === 3 && segs[2] === 'js'){
       let mod = require(absolute)
@@ -48,28 +84,27 @@ class Routo{
               path.join(output.substr(0,output.length-4-type.length), `${k}/index.html`) :
               path.join(output.substr(0,output.length-4-type.length),`${k}.${type}`)
             fs.ensureFileSync(file_output)
-            // write file after 
             // TODO: pass through transformers based on type first
             // TODO: Improve filepath generation logic (could b simpler for sure)
             fs.writeFileSync(file_output, m[k])
           })
         }
         else {
-          // Remove .js from output file name: [file].type
+          // Make pretty URLS by making all pages index.html of a folder
           let file_output =  type === 'html' && base != 'index.html.js' ? 
             path.join(output.substr(0,output.length-4-type.length), '/index.html') :
             output.substr(0,output.length-3)
           fs.ensureFileSync(file_output)
-          // write file after 
-          // TODO: pass through transformers based on type first
+          // TODO: pass through builders based on type & config first
           fs.writeFileSync(file_output, m)
 
         }
       }).catch(e => {
         console.error(e)
       })
-    } else if(segs.length != 1){
-      // ignore if directory
+    } else {
+      // directly copy file if not specialized JS
+      // TODO: pass through transformers based on config
       fs.ensureFileSync(output)
       fs.copyFileSync(p, output)
     }
@@ -83,43 +118,50 @@ class Routo{
   build(){
     fs.emptyDirSync(this.destination);
 
-    let sourcePaths = []
-    this.sources.forEach(source => {
-      sourcePaths = sourcePaths.concat(
-        walk(source, {nodir: true})
-        .map(x => x.path)
-        .filter(p => {
-          // TODO: sync with regex used by Chokidar, and allow for override in config file
-          let firstChar = path.basename(p)[0]
-          return firstChar[0] != "_" && firstChar[0] != "."
-        })
-      )
-    });
-
-    sourcePaths.forEach(p => { 
-      this.buildFile(p)
+    glob(this.sourcesGlob, (err, files) => { 
+      files.forEach(p => {
+        this.buildFile(p)
+      })
     })
   }
 
+  devBuild(p){
+    let { id } = this.transformPath(p)
+    console.log("Dev building ", p)
+    this.buildFile(p)
+    let dependencies = this.getFileDependencies(p).map(d => path.join(p,'../',d))
+    if(dependencies.length > 0){
+      dependencies.forEach(d => {
+        if(this.dependents[d]){
+          this.dependents[d].add(p)
+        } else {
+          this.dependents[d] = new Set([p])
+        }
+      })
+    }
+    if(this.dependents[p]){
+      // TODO: how to prevent double builds?????
+      this.dependents[p].forEach(x => {
+        this.watcher.add(this.devBuild(x))
+      })
+    }
+    return dependencies;
+  }
+
   watch(){
-    this.build()
-    let watcher = chokidar.watch(this.sources, { 
-      ignored: /(^|[\/\\])[\._]./,
-      ignoreInitial: true,
-      // awaitWriteFinish: {
-      //   stabilityThreshold: 1000,
-      //   pollInterval: 200
-      // }
-    })
-    watcher.on('all', (e, p) => {
+    let files = glob.sync(this.sourcesGlob)
+    this.watcher = chokidar.watch(files)
+    this.watcher.on('all', (e, p) => {
       if(e === 'unlink'){
         this.unlinkFile(p)
+        // TODO: Remove dependencies that are unneeded now
       } else {
-        this.buildFile(p)
+        this.watcher.add(this.devBuild(p))
       }
     })
     onExit(() => {
-      watcher.close().then(() => {})
+      console.log("Received onExit cue")
+      this.watcher.close().then(() => console.log("Watcher closed")) // Watcher closed isn't firing hm
     })
   }
 }
