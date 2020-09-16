@@ -13,14 +13,18 @@ sade('routo', true)
 .example('routo -w')
 .option('-w, --watch', 'Watch source directories and rebuild on changes')
 .option('-c, --config', 'Provide path to custom config file', 'routo.config.js')
+.option('-i, --input', 'Provide comma-separated source directories', 'source')
+.option('-o --output', 'Provide output directory', 'public')
 .action((opts) => {
   let configPath = path.join(process.cwd(), opts.config)
-  let config = {}
+  let config = {
+    source: opts.i.split(",").map(s => s.trim()),
+    destination: opts.o
+  }
   try {
     config = require(configPath).default
   } catch(e){
-    console.error("No config file found in current directory")
-    return;
+
   }
   let routo = new Routo({ cwd: process.cwd(), ...config })
   if(opts.watch){
