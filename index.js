@@ -70,6 +70,8 @@ class Routo{
 
     // ignore based on config and ignore directories / files without an extension
     if(p.match(this.ignored) || segs.length == 1) return;
+    // Don't build files not in source directort
+    if(!this.sources.some(s => p.includes(s))) return
 
 
     if(segs.length === 3 && segs[2] === 'js'){
