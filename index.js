@@ -15,7 +15,7 @@ class Routo{
     const src = config.source
     this.sources = Array.isArray(src) ? src : [src];
     this.destination = config.destination
-    this.cwd = config.cwd
+    this.cwd = process.cwd()
     this.ignored = /(^|[\/\\])[\._]./
     this.sourcesGlob = `+(${
       this.sources.join('|')
