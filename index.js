@@ -46,7 +46,7 @@ class Routo{
         let options = {}
         let dependencies = detectiveEs6(ast, options).concat(detectiveCjs(ast, options))
         let localDependencies = dependencies
-          .filter(str => str[0] === '.')
+          .filter(str => str && str[0] === '.')
           .map(str => {
             if(!str.endsWith('.js') && !str.endsWith('.json')){
               return str + ".js"
