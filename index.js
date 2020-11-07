@@ -1,14 +1,7 @@
 var fs = require('fs-extra')
 var path = require('path')
-var chokidar = require('chokidar')
-var onExit = require('signal-exit');
-var Walker = require('node-source-walk')
-var detectiveCjs = require('detective-cjs')
-var detectiveEs6 = require('detective-es6')
-var glob = require('glob')
 require = require("esm")(module)
-
-var walker = new Walker()
+var { watch } = require('jeye')
 
 class Routo{
   constructor(config){
@@ -17,11 +10,6 @@ class Routo{
     this.destination = config.destination
     this.cwd = process.cwd()
     this.ignored = /(^|[\/\\])[\._]./
-    this.sourcesGlob = `+(${
-      this.sources.join('|')
-    })/**/*`
-    this.dependents = {}
-    this.watcher = null
   }
 
   transformPath(p){
@@ -36,29 +24,6 @@ class Routo{
     let base = path.basename(id)
     let segs = base.split('.')
     return { id, output, absolute, base, segs }
-  }
-
-  getFileDependencies(p){
-    if(p.endsWith('.js')){
-      try{
-        let src = fs.readFileSync(p, { encoding: 'utf8'})
-        let ast = walker.parse(src)
-        let options = {}
-        let dependencies = detectiveEs6(ast, options).concat(detectiveCjs(ast, options))
-        let localDependencies = dependencies
-          .filter(str => str && str[0] === '.')
-          .map(str => {
-            if(!str.endsWith('.js') && !str.endsWith('.json')){
-              return str + ".js"
-            }
-            return str;
-          })
-        return localDependencies;
-      } catch(e){
-        console.log(e)
-      }
-    }
-    return []
   }
 
   buildFile(p){
@@ -151,7 +116,9 @@ class Routo{
   }
 
   watch(){
+    console.log(this.sourcesGlob)
     let files = glob.sync(this.sourcesGlob)
+    console.log(files)
     this.watcher = chokidar.watch(files)
     this.watcher.on('all', (e, p) => {
       if(e === 'unlink'){
@@ -160,10 +127,6 @@ class Routo{
       } else {
         this.watcher.add(this.devBuild(p))
       }
-    })
-    onExit(() => {
-      console.log("Received onExit cue")
-      this.watcher.close().then(() => console.log("Watcher closed")) // Watcher closed isn't firing hm
     })
   }
 }

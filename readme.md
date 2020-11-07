@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/marshallcb/routo/raw/master/routo.png" alt="Routo" width="100" />
+  <img src="https://github.com/marshallcb/routo/raw/main/routo.png" alt="Routo" width="100" />
 </div>
 
 <h1 align="center">Routo (Work in Progress)</h1>
