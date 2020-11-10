@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/marshallcb/routo/raw/main/routo.png" alt="Routo" width="75" />
+  <img src="https://github.com/marshallcb/routo/raw/main/routo.png" alt="Routo" width="80" />
 </div>
 
 <h1 align="center">routo</h1>
