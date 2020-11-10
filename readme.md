@@ -7,9 +7,12 @@
   <a href="https://npmjs.org/package/routo">
     <img src="https://badgen.net/npm/v/routo" alt="version" />
   </a>
+  <a href="https://packagephobia.com/result?p=routo">
+    <img src="https://badgen.net/packagephobia/install/routo" alt="install size" />
+  </a>
 </div>
 
-<div align="center">routing-based asset builder for static site generation</div>
+<h2 align="center">routing-based asset builder for static site generation</h2>
 
 <h3 align="center">:construction: Work in progress :construction:</h3>
 
