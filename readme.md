@@ -9,7 +9,7 @@
   </a>
 </div>
 
-<div align="center">Simple no-bundle file builderr</div>
+<div align="center">routing-based asset builder for static site generation</div>
 
 <h3 align="center">:construction: Work in progress :construction:</h3>
 
@@ -25,6 +25,10 @@
 - Add filetype-specific transformers for compilation, minification, and compression
 - Add aggregate builders for bundling components, styles, or any other multi-file bundle
 - Pairs nicely with [`serve`](https://github.com/vercel/serve) for local development
+
+## Overview
+
+![Routo flow](https://github.com/marshallcb/routo/raw/main/docs/routo-flow.png "Overview")
 
 ## Installation
 
