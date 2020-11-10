@@ -13,38 +13,30 @@
 
 <h3 align="center">:construction: Work in progress :construction:</h3>
 
-## Features
-
-- Copies static files from source directories to output directory
-- Generates files from `export default` in files named `[name].[filetype].js`
-  - Export a string for text-based files (.html, .css, etc)
-  - Export a Buffer for images and other raw data formats (.png, .gif, .pdf)
-  - Export a Promise for asynchronous generation (useful for fetching remote data)
-- Watches files *and their dependencies* for changes thanks to [`jeye`](https://github.com/marshallcb/jeye)
-- **[Advanced]** Add filetype-specific transformers for compilation, minification, and compression
-- **[Advanced]** Add aggregate builders for bundling components, styles, or any other multi-file bundle
-- Pairs nicely with [`serve`](https://github.com/vercel/serve) for local development
-- Install size is minimal (1.2MB) compared to other builders (Snowpack: 17.3MB, Parcel 65MB, Webpack: 14.5MB, Grunt 6.09MB)
-
 ## Overview
 
 ![Routo flow](https://github.com/marshallcb/routo/raw/main/docs/routo-flow.png "Overview")
 
-## Installation
+## Features
 
-```sh
-npm install routo
-```
-
-## Example
-
-`routo pages,assets public -w & serve public` will watch all files in `/pages` and `/assets`, build them to `/public`, and serve to a local webserver
+- Copies static files from source to destination
+- Generates files using `export default` in files named `[name].[filetype].js`
+  - Export a string for text-based files (.html, .css, etc)
+  - Export a Buffer for images and other raw data formats (.png, .gif, .pdf)
+  - Export a Promise for asynchronous generation (useful for fetching remote data)
+- Use modern, ES6 Syntax in Node thanks to [`esm`](https://github.com/standard-things/esm)
+- Watches files *and their dependencies* for changes thanks to [`jeye`](https://github.com/marshallcb/jeye)
+- Pairs nicely with [`serve`](https://github.com/vercel/serve) for local development
+- Install size is minimal (**1.2MB**) compared to other builders (Snowpack: **17MB**, Parcel **65MB**, Webpack: **14MB**, Grunt **6MB**)
+- **[Advanced]** Add filetype-specific transformers for compilation, minification, and compression
+- **[Advanced]** Add aggregate builders for bundling components, styles, or any other multi-file bundle
 
 - - -
 
 # Roadmap
 
 - More config options for builds/transforms
+- Better documentation
 - Better error handling
 
 ## Acknowledgements
