@@ -1,1 +1,0 @@
-export default "hello world from Earth"

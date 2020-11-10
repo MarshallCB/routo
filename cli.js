@@ -3,7 +3,7 @@
 const sade = require('sade');
 const pkg = require('./package.json')
 const path = require('path')
-const Routo = require('./index.js');
+const { watch, build } = require('./src/index.js');
 require = require("esm")(module)
 
 sade('routo [input] [output]', true)
@@ -14,23 +14,20 @@ sade('routo [input] [output]', true)
 .option('-w, --watch', 'Watch source directories and rebuild on changes')
 .option('-c, --config', 'Provide path to custom config file')
 .action((input, output, opts) => {
-  let config = {
-    source: input.split(",").map(s => s.trim()),
-    destination: output
-  }
+  let source = input ? input.split(",").map(s => s.trim()) : null
+  let destination = output
+  let options
   if(opts.config){
-    let configPath = path.join(process.cwd(), opts.config)
     try {
-      config = { ...config, ...require(configPath).default }
+      options = require(path.join(process.cwd(), opts.config)).default
     } catch(e){
       console.log("Error loading config file: ", opts.config)
     }
   }
-  let routo = new Routo(config)
   if(opts.watch){
-    routo.watch()
+    watch(source, destination, options)
   } else {
-    routo.build()
+    build(source, destination, options)
   }
 })
 .parse(process.argv);
