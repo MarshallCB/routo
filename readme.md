@@ -16,15 +16,15 @@
 ## Features
 
 - Copies static files from source directories to output directory
-- Generates files with JS
-  - `src/index.html.js` --> `out/index.html`
-  - `src/styles.css.js` --> `out/styles.css`
-  - `src/data.json.js` --> `out/data.json`
-  - `src/sprite-sheet.png.js` --> `out/sprite-sheet.png`
+- Generates files from `export default` in files named `[name].[filetype].js`
+  - Export a string for text-based files (.html, .css, etc)
+  - Export a Buffer for images and other raw data formats (.png, .gif, .pdf)
+  - Export a Promise for asynchronous generation (useful for fetching remote data)
 - Watches files *and their dependencies* for changes thanks to [`jeye`](https://github.com/marshallcb/jeye)
-- Add filetype-specific transformers for compilation, minification, and compression
-- Add aggregate builders for bundling components, styles, or any other multi-file bundle
+- **[Advanced]** Add filetype-specific transformers for compilation, minification, and compression
+- **[Advanced]** Add aggregate builders for bundling components, styles, or any other multi-file bundle
 - Pairs nicely with [`serve`](https://github.com/vercel/serve) for local development
+- Install size is minimal (1.2MB) compared to other builders (Snowpack: 17.3MB, Parcel 65MB, Webpack: 14.5MB, Grunt 6.09MB)
 
 ## Overview
 
