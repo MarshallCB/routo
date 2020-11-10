@@ -5,7 +5,7 @@
     "type": "git",
     "url": "git+https://github.com/marshallcb/routo.git"
   },
-  "description": "Custom static site builder",
+  "description": "Simple no-bundle file builder",
   "bin": {
     "routo": "./cli.js"
   },
@@ -29,7 +29,6 @@
   ],
   "dependencies": {
     "chalk": "^4.1.0",
-    "chokidar": "^3.4.2",
     "esm": "^3.2.25",
     "fs-extra": "^9.0.1",
     "jeye": "^0.4.0",

@@ -5,8 +5,6 @@ var ora = require("ora")
 var chalk = require("chalk")
 require = require("esm")(module)
 
-// ◸ ̷◿   ◸/◿   ◤/◢
-
 class Routo{
   constructor(sources, destination, { ignore, watch, silent }){
     Object.assign(this, { sources, destination, silent, ignore, builders:{} })
