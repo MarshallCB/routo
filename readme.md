@@ -16,6 +16,13 @@
 
 <p align="center">:construction: Work in progress :construction:</p>
 
+<div align="center">
+  <a href="#Usage"><b>Usage</b></a> | 
+  <a href="#API"><b>API</b></a> | 
+  <a href="#Examples"><b>Examples</b></a> | 
+  <a href="#Details"><b>Details</b></a>
+</div>
+
 # Overview
 
 ![How routo works](https://github.com/marshallcb/routo/raw/main/docs/routo-build.png "How routo works")
@@ -23,7 +30,7 @@
 ## How it works
 
 - Generates files using `export default` in files named `[name].[filetype].js`
-  - Export a string for text-based files (.html, .css, etc)
+  - Export a String for text-based files (.html, .css, etc)
   - Export a Buffer for images and other raw data formats (.png, .gif, .pdf)
   - Export a Promise for asynchronous generation (useful for fetching remote data)
 - Copies normal, static files from source to destination automatically
@@ -46,21 +53,19 @@
 
 :construction: Work in progress :construction:
 
-### Recommended workflow
+### Custom Configuration
 
-**Install `routo` & `serve` as devDependencies**
+**Install `routo` & `serve`**
 ```bash
-npm i -D routo serve
+npm i routo && npm i -D serve
 ```
 
 **Setup `dev` and `build` scripts**
 
 ```json
-{
-  "scripts": {
-    "dev": "routo pages,assets public -w & serve public",
-    "build": "routo pages,assets public"
-  }
+"scripts": {
+  "dev": "routo pages,assets public -w & serve public",
+  "build": "routo pages,assets public"
 }
 ```
 
