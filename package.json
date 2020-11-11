@@ -5,7 +5,7 @@
     "type": "git",
     "url": "git+https://github.com/marshallcb/routo.git"
   },
-  "description": "routing-based asset builder for static site generation",
+  "description": "routing-based file builder for static site generation",
   "bin": {
     "routo": "./cli.js"
   },

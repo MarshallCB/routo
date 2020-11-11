@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/marshallcb/routo/raw/main/routo.png" alt="Routo" width="60" />
+  <img src="https://github.com/marshallcb/routo/raw/main/docs/routo.png" alt="Routo" width="60" />
 </div>
 
 <h1 align="center">routo</h1>
@@ -12,7 +12,7 @@
   </a>
 </div>
 
-<h3 align="center">routing-based asset builder for static site generation</h3>
+<h3 align="center">routing-based file builder for static site generation</h3>
 
 <p align="center">:construction: Work in progress :construction:</p>
 
