@@ -18,7 +18,7 @@
 
 # Overview
 
-![Routo overview](https://github.com/marshallcb/routo/raw/main/docs/routo-overview.png "Routo overview")
+![How routo works](https://github.com/marshallcb/routo/raw/main/docs/routo-build.png "How routo works")
 
 ## How it works
 
@@ -26,9 +26,7 @@
   - Export a string for text-based files (.html, .css, etc)
   - Export a Buffer for images and other raw data formats (.png, .gif, .pdf)
   - Export a Promise for asynchronous generation (useful for fetching remote data)
-- Copies static files from source to destination
-
-![How routo works](https://github.com/marshallcb/routo/raw/main/docs/routo-build.png "How routo works")
+- Copies normal, static files from source to destination automatically
 
 ## Features
 
@@ -39,6 +37,36 @@
 - **[Advanced]** Add aggregate builders for bundling components, styles, or any other multi-file bundle
 
 ---
+
+# Usage
+
+![Routo overview](https://github.com/marshallcb/routo/raw/main/docs/routo-overview.png "Routo overview")
+
+### Cloneable Template
+
+:construction: Work in progress :construction:
+
+### Recommended workflow
+
+**Install `routo` & `serve` as devDependencies**
+```bash
+npm i -D routo serve
+```
+
+**Setup `dev` and `build` scripts**
+
+```json
+{
+  "scripts": {
+    "dev": "routo pages,assets public -w & serve public",
+    "build": "routo pages,assets public"
+  }
+}
+```
+
+### Deployment
+
+:construction: Work in progress :construction:
 
 # API
 
