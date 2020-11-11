@@ -39,7 +39,7 @@
 
 - Write modern, ES6 Syntax in Node thanks to [`esm`](https://github.com/standard-things/esm)
 - Watches files *and their dependencies* for changes thanks to [`jeye`](https://github.com/marshallcb/jeye)
-- Install size is minimal (**1.2MB**) compared to other builders (Snowpack: **17MB**, Parcel **65MB**, Webpack: **14MB**, Grunt **6MB**)
+- Install size is minimal ![install size](https://badgen.net/packagephobia/install/routo/?label=&color=1A5) compared to other builders (Snowpack: ![install size](https://badgen.net/packagephobia/install/snowpack/?label=&color=B71), Parcel ![install size](https://badgen.net/packagephobia/install/parcel/?label=&color=921), Webpack: ![install size](https://badgen.net/packagephobia/install/webpack/?label=&color=B71), Grunt ![install size](https://badgen.net/packagephobia/install/grunt/?label=&color=681))
 - **[Advanced]** Add filetype-specific transformers for compilation, minification, and compression
 - **[Advanced]** Add aggregate builders for bundling components, styles, or any other multi-file bundle
 
