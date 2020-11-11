@@ -43,7 +43,7 @@
 
 - Install size is minimal compared to other builders
 
-**Routo**: ![install size](https://badgen.net/packagephobia/install/routo/?label=&color=1A5) **Grunt**: ![install size](https://badgen.net/packagephobia/install/grunt/?label=&color=6A3) **Webpack**: ![install size](https://badgen.net/packagephobia/install/webpack/?label=&color=B71) **Snowpack**: ![install size](https://badgen.net/packagephobia/install/snowpack/?label=&color=B71) **Parcel**: ![install size](https://badgen.net/packagephobia/install/parcel/?label=&color=921) 
+  - ![install size](https://badgen.net/packagephobia/install/routo/?label=routo&color=1A5) ![install size](https://badgen.net/packagephobia/install/grunt/?label=grunt&color=6A3) ![install size](https://badgen.net/packagephobia/install/webpack/?label=webpack&color=B71) ![install size](https://badgen.net/packagephobia/install/snowpack/?label=snowpack&color=B71) ![install size](https://badgen.net/packagephobia/install/parcel/?label=parcel&color=921) 
 
 - **[Advanced]** Add filetype-specific transformers for compilation, minification, and compression
 
