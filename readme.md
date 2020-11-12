@@ -103,6 +103,12 @@ npm i routo && npm i -D serve
 
 # Examples
 
+- Static HTML page
+- CSS Generator
+- Folder of blog pages
+- Spritesheet generator
+- Remote data fetching
+
 :construction: Work in progress :construction:
 
 ---

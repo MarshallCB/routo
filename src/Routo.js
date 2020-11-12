@@ -165,7 +165,11 @@ class Routo{
       let targets = await jeye.targets(this.sources, { ignore: this.ignore })
       await Promise.all(
         Object.keys(targets).map(async p => {
-          await this.buildFile(p, targets[p])
+          try{
+            await this.buildFile(p, targets[p])
+          } catch(e){
+            this.error(p + ": " + e)
+          }
         })
       )
       await this.aggregate(targets)
