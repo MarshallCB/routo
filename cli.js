@@ -12,22 +12,17 @@ sade('routo [input] [output]', true)
 .example('routo assets,pages public -w')
 .example('routo -c custom.config.js')
 .option('-w, --watch', 'Watch source directories and rebuild on changes')
+.option('-s, --silent', 'Don\'t output status messages to console')
 .option('-c, --config', 'Provide path to custom config file')
 .action((input, output, opts) => {
   let source = input ? input.split(",").map(s => s.trim()) : null
   let destination = output
-  let options
-  if(opts.config){
-    try {
-      options = require(path.join(process.cwd(), opts.config)).default
-    } catch(e){
-      console.log("Error loading config file: ", opts.config)
-    }
-  }
+  let silent = opts.s
+  let config = opts.c
   if(opts.watch){
-    watch(source, destination, options)
+    watch(source, destination, { silent, config })
   } else {
-    build(source, destination, options)
+    build(source, destination, { silent, config })
   }
 })
 .parse(process.argv);

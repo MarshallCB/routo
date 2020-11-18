@@ -30,9 +30,14 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "esm": "^3.2.25",
-    "fs-extra": "^9.0.1",
     "jeye": "^0.4.5",
+    "mk-dirs": "^3.0.0",
     "ora": "^5.1.0",
+    "premove": "^3.0.1",
     "sade": "^1.7.3"
+  },
+  "devDependencies": {
+    "marked": "^1.2.3",
+    "prismjs": "^1.22.0"
   }
 }
