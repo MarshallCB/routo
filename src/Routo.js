@@ -89,7 +89,11 @@ class Routo{
   watch(){
     this.spinner.start('initializing routo...')
     jeye.watch(this.sources, { ignore: this.ignore })
-      .on("change", async (p, info) => {
+      .on("change", async (p, info, changed=[]) => {
+        changed.forEach(c => {
+          let abs_path = path.join(process.cwd(), c)
+          delete require.cache[abs_path]
+        });
         if(!this.silent && !this.spinner.isSpinning){
           this.spinner.start('building...')
           this.loadStart = Date.now()
@@ -98,14 +102,16 @@ class Routo{
           await this.buildFile(p, info)
         } catch(e){
           this.error("Error building file: " + p)
+          console.log(e)
         }
         return
       })
       .on("aggregate", async (targets, changed) => {
           try{
-            await this.aggregate(targets, changed)
+            // await this.aggregate(targets, changed)
           } catch(e){
             this.error("Error with aggregate build")
+            console.log(e)
             return;
           }
           if(!this.silent){
@@ -154,28 +160,29 @@ class Routo{
   }
 
   async buildFile(p, info){
-    // is this a JS file or a raw file to copy over?
-    // which builder should we use?
-    async function copyBuilder(p, {id}){
-      let data = await fs.readFile(p)
-      return { [id]: data }
-    }
-
-    // use builder to build file or use readFile contents
-    let builder = this.builders.find(b => 
-      (!b.match || (typeof b.match === 'function' && b.match(p)))
-      && typeof b.build === 'function'
-    )
-    builder = builder ? builder.build : copyBuilder
-    let output = await builder(p, info)
-    let promises = Object.keys(output).map(async k => {
-      let output_path = path.join(this.destination, k)
-      let ensured_folder = output_path.replace(path.basename(output_path),"")
-      mkdir(ensured_folder)
-      await fs.writeFile(output_path, output[k])
-    })
-
-    await Promise.all(promises)
+      // is this a JS file or a raw file to copy over?
+      // which builder should we use?
+      async function copyBuilder(p, {id}){
+        let data = await fs.readFile(p)
+        return { [id]: data }
+      }
+  
+      // use builder to build file or use readFile contents
+      let builder = this.builders.find(b => 
+        (!b.match || (typeof b.match === 'function' && b.match(p)))
+        && typeof b.build === 'function'
+      )
+      builder = builder ? builder.build : copyBuilder
+      let output = await builder(p, info)
+      let promises = Object.keys(output).map(async k => {
+        let output_path = path.join(this.destination, k)
+        let ensured_folder = output_path.replace(path.basename(output_path),"")
+        mkdir(ensured_folder)
+        await fs.writeFile(output_path, output[k])
+      })
+  
+      await Promise.all(promises)
+    return;
   }
 
   async aggregate(targets, changed = null){
@@ -184,6 +191,7 @@ class Routo{
     } else {
       // only some files have changed
     }
+    return;
   }
 
   async build(){
