@@ -1,4 +1,5 @@
-var fs = require('fs/promises')
+var fs = require('fs')
+var { promisify } = require('util');
 var path = require("path")
 var jeye = require("jeye")
 var ora = require("ora")
@@ -7,6 +8,9 @@ var { premove } = require("premove")
 var { mkdir } = require("mk-dirs/sync")
 const { extname } = require("path")
 require = require("esm")(module)
+
+const readFile = promisify(fs.readFile)
+const writeFile = promisify(fs.writeFile)
 
 class Spinner{
   constructor(logo_art='◸/◿', loading_art=['◸-◿','◸\\◿','◸|◿','◸/◿'], error_art='◸x◿', success_art='◸✓◿'){
@@ -163,7 +167,7 @@ class Routo{
       // is this a JS file or a raw file to copy over?
       // which builder should we use?
       async function copyBuilder(p, {id}){
-        let data = await fs.readFile(p)
+        let data = await readFile(p)
         return { [id]: data }
       }
   
@@ -178,7 +182,7 @@ class Routo{
         let output_path = path.join(this.destination, k)
         let ensured_folder = output_path.replace(path.basename(output_path),"")
         mkdir(ensured_folder)
-        await fs.writeFile(output_path, output[k])
+        await writeFile(output_path, output[k])
       })
   
       await Promise.all(promises)
