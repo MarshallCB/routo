@@ -55,7 +55,7 @@ class Routo{
   }
 
   watch(){
-    jeye.watch(this.sources, { ignore: this.ignore })
+    jeye.watch(this.sources, { ignore: this.ignore, cache: require.cache })
       .on("change", async (p, info) => {
         this.loadStart = Date.now()
         try{
