@@ -1,5 +1,5 @@
 var Routo = require('./Routo')
-var chalk = require('chalk')
+var { red } = require('kleur')
 
 let defaultOptions = {
   silent: false,
@@ -8,11 +8,11 @@ let defaultOptions = {
 
 function checkArguments(sources, destination, options){
   if(!sources || (Array.isArray(sources) && sources.length < 1)){
-    console.log(`${chalk.red('◸x◿')} routo: Missing 'sources' argument`)
+    console.log(`${red('◸x◿')} routo: Missing 'sources' argument`)
     return false;
   }
   if(!destination){
-    console.log(`${chalk.red('◸x◿')} routo: Missing 'destination' argument`)
+    console.log(`${red('◸x◿')} routo: Missing 'destination' argument`)
     return false;
   }
   return true;

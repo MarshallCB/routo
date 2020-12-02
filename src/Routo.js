@@ -2,8 +2,7 @@ var fs = require('fs')
 var { promisify } = require('util');
 var path = require("path")
 var jeye = require("jeye")
-var ora = require("ora")
-var chalk = require("chalk")
+var { green, blue, bold, dim, red } = require('kleur')
 var { premove } = require("premove")
 var { mkdir } = require("mk-dirs/sync")
 const { extname } = require("path")
@@ -12,40 +11,6 @@ require = require("esm")(module)
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
-class Spinner{
-  constructor(logo_art='◸/◿', loading_art=['◸-◿','◸\\◿','◸|◿','◸/◿'], error_art='◸x◿', success_art='◸✓◿'){
-    Object.assign(this, { logo_art, error_art, success_art })
-    this.s = ora({
-    text: "initializing...",
-      spinner: {
-        interval: 80,
-        frames: loading_art
-      },
-      color: 'yellow'
-    })
-  }
-  ready(text="ready"){
-    this.s.stopAndPersist({
-      symbol: chalk.green(this.logo_art),
-      text
-    })
-  }
-  start(text="loading..."){
-    this.s.start(text)
-  }
-  error(text="generic routo error"){
-    this.s.stopAndPersist({
-      symbol: chalk.red(this.error_art),
-      text
-    })
-  }
-  success(text="success"){
-    this.s.stopAndPersist({
-      symbol: chalk.green(this.success_art),
-      text
-    })
-  }
-}
 
 class Routo{
   constructor(sources, destination, { ignore, watch, silent, config }){
@@ -85,23 +50,14 @@ class Routo{
     }]
     this.transforms = this.config.builders || []
     if(watch){
-      this.spinner = new Spinner()
       this.watch()
     }
   }
 
   watch(){
-    this.spinner.start('initializing routo...')
     jeye.watch(this.sources, { ignore: this.ignore })
-      .on("change", async (p, info, changed=[]) => {
-        changed.forEach(c => {
-          let abs_path = path.join(process.cwd(), c)
-          delete require.cache[abs_path]
-        });
-        if(!this.silent && !this.spinner.isSpinning){
-          this.spinner.start('building...')
-          this.loadStart = Date.now()
-        }
+      .on("change", async (p, info) => {
+        this.loadStart = Date.now()
         try{
           await this.buildFile(p, info)
         } catch(e){
@@ -120,7 +76,7 @@ class Routo{
           }
           if(!this.silent){
             let elapsed = Date.now() - this.loadStart
-            let succeedMessage = () => this.spinner.success(`${changed.length} file${changed.length === 1 ? '' : 's'} changed in ${elapsed}ms`)
+            let succeedMessage = () => this.success(`${changed.length} file${changed.length === 1 ? '' : 's'} changed in ${elapsed}ms`)
             if(elapsed < 300){
               setTimeout(succeedMessage, 300 - elapsed)
             } else {
@@ -132,7 +88,7 @@ class Routo{
       .on("ready", (targets) => {    
         this.build().then(() => {
           if(!this.silent){
-            this.spinner.ready('routo is ready')
+            this.success('routo is ready')
           }
         })
       })
@@ -148,11 +104,14 @@ class Routo{
 
   error(message){
     if(!this.silent){
-      if(this.spinner){
-        this.spinner.error(message)
-      } else {
-        console.log(`${chalk.red('◸x◿')} ${message}`)
-      }
+      console.log(`${red('◸x◿')} ${message}`)
+    } else {
+      throw message;
+    }
+  }
+  success(message){
+    if(!this.silent){
+      console.log(`${green('◸✓◿')} ${message}`)
     } else {
       throw message;
     }
@@ -180,8 +139,7 @@ class Routo{
       let output = await builder(p, info)
       let promises = Object.keys(output).map(async k => {
         let output_path = path.join(this.destination, k)
-        let ensured_folder = output_path.replace(path.basename(output_path),"")
-        mkdir(ensured_folder)
+        mkdir(path.dirname(output_path))
         await writeFile(output_path, output[k])
       })
   
