@@ -1,13 +1,18 @@
 var Routo = require('./Routo')
 var { red } = require('kleur')
 
-let defaultOptions = {
+let default_config = {
   silent: false,
-  ignore: /(^|[\/\\])[\._]./
+  ignore: /(^|[\/\\])[\._]./,
+  builders: [],
+  transforms: [],
+  destination: "public",
+  // no default source for now...
 }
 
-function checkArguments(sources, destination, options){
-  if(!sources || (Array.isArray(sources) && sources.length < 1)){
+function checkConfig({ source, destination }){
+  if(!source){
+    // TODO: check to see if each source is a valid directory
     console.log(`${red('◸x◿')} routo: Missing 'sources' argument`)
     return false;
   }
@@ -15,18 +20,29 @@ function checkArguments(sources, destination, options){
     console.log(`${red('◸x◿')} routo: Missing 'destination' argument`)
     return false;
   }
+  // TODO: check validity of other parameters for nice error messages
   return true;
 }
 
-function watch(sources, destination, options={}){
-  if(checkArguments(...arguments)){
-    return new Routo(sources, destination, { ...defaultOptions, ...options, watch: true });
+function watch(config={}){
+  config = { 
+    ...default_config,
+    ...config
+  }
+  if(checkConfig(config)){
+    let r = new Routo(config);
+    r.watch()
+    return r;
   }
 }
 
-async function build(sources, destination, options={}){
-  if(checkArguments(...arguments)){
-    let routo = new Routo(sources, destination, { ...defaultOptions, ...options, watch: false})
+async function build(config={}){
+  config = { 
+    ...default_config,
+    ...config
+  }
+  if(checkConfig(config)){
+    let routo = new Routo(config)
     let targets = await routo.build()
     return targets;
   }

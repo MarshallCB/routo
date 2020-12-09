@@ -2,7 +2,7 @@ var fs = require('fs')
 var { promisify } = require('util');
 var path = require("path")
 var jeye = require("jeye")
-var { green, blue, bold, dim, red } = require('kleur')
+var { green, blue, bold, dim, red, yellow } = require('kleur')
 var { premove } = require("premove")
 var { mkdir } = require("mk-dirs/sync")
 const { extname } = require("path")
@@ -13,49 +13,15 @@ const writeFile = promisify(fs.writeFile)
 
 
 class Routo{
-  constructor(sources, destination, { ignore, watch, silent, config }){
-    Object.assign(this, { sources, destination, silent, ignore })
-    let configData = {}
-    if(config && typeof config === 'string'){
-      try{
-        configData = require(path.join(process.cwd(), config)).default
-      } catch(e){
-        this.error("Invalid config path")
-      }
-    }
-    this.config = {
-      builders: [],
-      transforms: [],
-      ...configData
-    }
-    this.builders = [...this.config.builders, {
-      match: (p) => {
-        // returns true for style.css.js, false for robots.txt
-        return /([\w-*]+)(\.[\w-*]+\.js)/g.exec(p)
-      },
-      build: async (p, { id }) => {
-        let abs_path = path.join(process.cwd(), p)
-        delete require.cache[abs_path]
-        let data = await Promise.resolve(require(abs_path).default)
-        // remove .js at end
-        id = id.substr(0,id.length - 3)
-        // if .html other than the first index, put in a folder
-        if(extname(id) === '.html' && id !== '/index.html'){
-          id = id.replace('.html', '/index.html')
-        }
-        return {
-          [id]: data
-        }
-      }
-    }]
-    this.transforms = this.config.builders || []
-    if(watch){
-      this.watch()
-    }
+  constructor({ source, destination, ignore, silent, builders, transforms }){
+    Object.assign(this, { source, destination, silent, ignore })
+    this.builders = builders || []
+    this.transforms = transforms || []
+    this.write = this.write.bind(this)
   }
 
   watch(){
-    jeye.watch(this.sources, { ignore: this.ignore, cache: require.cache })
+    jeye.watch(this.source, { ignore: this.ignore, cache: require.cache })
       .on("change", async (p, info) => {
         this.loadStart = Date.now()
         try{
@@ -68,7 +34,7 @@ class Routo{
       })
       .on("aggregate", async (targets, changed) => {
           try{
-            // await this.aggregate(targets, changed)
+            await this.aggregate(targets, changed)
           } catch(e){
             this.error("Error with aggregate build")
             console.log(e)
@@ -92,7 +58,7 @@ class Routo{
           }
         })
       })
-      .on("error", (message) => {    
+      .on("error", (message) => {   
         this.error(message)
       })
       .on("remove", (p) => {
@@ -116,6 +82,13 @@ class Routo{
       throw message;
     }
   }
+  warn(message){
+    if(!this.silent){
+      console.log(`${yellow('◸!◿')} ${message}`)
+    } else {
+      throw message;
+    }
+  }
 
   isBuilder(p){
     let segments = path.basename(p).split('.')
@@ -123,42 +96,104 @@ class Routo{
   }
 
   async buildFile(p, info){
-      // is this a JS file or a raw file to copy over?
-      // which builder should we use?
-      async function copyBuilder(p, {id}){
-        let data = await readFile(p)
-        return { [id]: data }
+    // is this a JS file or a raw file to copy over?
+    // which builder should we use?
+    async function copyBuilder(p, {id}){
+      let data = await readFile(p)
+      return { [id]: data }
+    }
+
+    async function defaultBuilder(p, { id }){
+      let data = await Promise.resolve(require(path.join(process.cwd(), p)).default)
+      return { [id]: data }
+    }
+
+    let match = /([\w-*]+\.([\w-*]+))\.js/g.exec(p)
+    let builder
+    if(match){
+      // use builder from config if it exists, otherwise use default builder
+      builder = this.builders[match[2]] || defaultBuilder
+    } else {
+      builder = copyBuilder
+    }
+    // remove .js if it's a "builder" path
+    info = { ...info, id: match ? info.id.substring(0,info.id.length-3) : info.id }
+    let output = await builder(p, info)
+    if(typeof output !== 'object'){
+      output = { [info.id]: output }
+    }
+    await this.write(output)
+  }
+
+  write(output){
+    let { destination, transforms } = this
+    return Promise.all(Object.keys(output).map(async k => {
+      let output_path = path.join(destination, k)
+      let data = output[k]
+
+      let applicable_transforms = transforms[path.extname(k).substr(1)] || []
+      for(let i = 0; i < applicable_transforms.length; i++){
+        data = await applicable_transforms[i](data)
       }
-  
-      // use builder to build file or use readFile contents
-      let builder = this.builders.find(b => 
-        (!b.match || (typeof b.match === 'function' && b.match(p)))
-        && typeof b.build === 'function'
-      )
-      builder = builder ? builder.build : copyBuilder
-      let output = await builder(p, info)
-      let promises = Object.keys(output).map(async k => {
-        let output_path = path.join(this.destination, k)
-        mkdir(path.dirname(output_path))
-        await writeFile(output_path, output[k])
-      })
-  
-      await Promise.all(promises)
-    return;
+      // using sync to avoid simultaneous directory creation (executed in parallel)
+      mkdir(path.dirname(output_path))
+      await writeFile(path.join(process.cwd(), output_path), data)
+    })).catch(e => {
+      console.log("Error writing output files")
+      console.log(e)
+    })
   }
 
   async aggregate(targets, changed = null){
-    if(changed === null){
-      // assume all have changed
-    } else {
-      // only some files have changed
-    }
+
+    // Object.keys(targets).forEach(p => {
+    //   targets[p] = {
+    //     ...targets[p],
+    //     id: targets[p].id.substr(0,targets[p].id.length - 3)
+    //   }
+    // })
+
+    // if(changed === null){
+    //   // assume all have changed
+    //   changed = Object.keys(targets)
+    // }
+    // let aggregates = new Set()
+    // // go through each builder
+
+    // changed.forEach(p => {
+    //   let id = targets[p].id
+    //   id = id.substr(0,id.length - 3)
+    //   let relevant_builder = this.builders[path.extname(id)]
+    //   if(relevant_builder && typeof relevant_builder.aggregate === 'function'){
+    //     aggregates.add(relevant_builder)
+    //   }
+    // })
+
+    // let promises = []
+    // // for each triggered aggregate builder
+    // aggregates.forEach(async (builder) => {
+    //   // filter all possible targets to only those matched by aggregate builder
+    //   let filtered_targets = {}
+    //   Object.keys(targets).forEach(p => {
+
+    //     if(match(p)){
+    //       filtered_targets[p] = targets[p]
+    //     }
+    //   })
+    //   // add async promise of aggregate builder
+    //   promises.push(aggregate(filtered_targets))
+    // })
+
+    // let outputs = await Promise.all(promises)
+
+    // await Promise.all(outputs.map(this.write))
+
     return;
   }
 
   async build(){
     try{
-      let targets = await jeye.targets(this.sources, { ignore: this.ignore })
+      let targets = await jeye.targets(this.source, { ignore: this.ignore })
       await Promise.all(
         Object.keys(targets).map(async p => {
           try{

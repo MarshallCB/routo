@@ -12,7 +12,7 @@
   </a>
 </div>
 
-<h3 align="center">routing-based file builder for static site generation</h3>
+<h3 align="center">filesystem-routing builder for static site generation</h3>
 
 <p align="center">:construction: Work in progress :construction:</p>
 
