@@ -200,6 +200,7 @@ class Routo{
             await this.buildFile(p, targets[p])
           } catch(e){
             this.error(p + ": " + e)
+            console.log(e)
           }
         })
       )
@@ -207,6 +208,7 @@ class Routo{
       return Object.keys(targets)
     } catch(e){
       this.error(e)
+      console.log(e)
     }
   }
 
