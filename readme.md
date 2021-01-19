@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/marshallcb/routo/raw/main/docs/routo.png" alt="Routo" width="60" />
+  <img src="https://github.com/marshallcb/routo/raw/main/meta/routo.png" alt="Routo" width="60" />
 </div>
 
 <h1 align="center">routo</h1>
@@ -25,7 +25,7 @@
 
 # Overview
 
-![How routo works](https://github.com/marshallcb/routo/raw/main/docs/routo-build.png "How routo works")
+![How routo works](https://github.com/marshallcb/routo/raw/main/meta/routo-build.png "How routo works")
 
 ## How it works
 
@@ -53,7 +53,7 @@
 
 # Usage
 
-![Routo overview](https://github.com/marshallcb/routo/raw/main/docs/routo-overview.png "Routo overview")
+![Routo overview](https://github.com/marshallcb/routo/raw/main/meta/routo-overview.png "Routo overview")
 
 ### Cloneable Template
 

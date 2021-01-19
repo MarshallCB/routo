@@ -13,7 +13,7 @@ let default_config = {
 function checkConfig({ source, destination }){
   if(!source){
     // TODO: check to see if each source is a valid directory
-    console.log(`${red('◸x◿')} routo: Missing 'sources' argument`)
+    console.log(`${red('◸x◿')} routo: Missing 'source' argument`)
     return false;
   }
   if(!destination){
